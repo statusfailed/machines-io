@@ -26,5 +26,8 @@ forkChan xs = do
   mapM_ (forkIO . runT_ . (~> toChan c)) xs
   return c
 
-mergeIO :: (MonadIO m, Foldable t) => t (MachineT IO k a) -> IO (MachineT m k' a)
+mergeIO
+  :: (MonadIO m, Foldable t)
+  => t (MachineT IO k a)  -- | A collection of machines
+  -> IO (MachineT m k' a) -- | A MonadIO'ic machine
 mergeIO xs = fmap fromChan $ forkChan xs
