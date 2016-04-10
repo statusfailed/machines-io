@@ -21,7 +21,7 @@ printer :: (Show a, MonadIO m) => ProcessT m a ()
 printer = repeatedly (await >>= liftIO . print)
 
 main = do
-  m <- mergeIO [left, right]
+  m <- mergeIO id [left, right]
   runT_ $ m ~> printer
   print 1
   where

@@ -2,7 +2,7 @@
 module Data.Machine.IO.Concurrent
   ( toChan
   , fromChan
-  {-, mergeIO-}
+  , mergeIO
   ) where
 
 import Data.Machine
