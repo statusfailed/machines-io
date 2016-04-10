@@ -2,7 +2,7 @@
 module Data.Machine.IO.Concurrent
   ( toChan
   , fromChan
-  , mergeIO
+  {-, mergeIO-}
   ) where
 
 import Data.Machine
@@ -20,14 +20,19 @@ fromChan c = repeatedly $ liftIO (readChan c) >>= yield
 runChan :: MonadIO m => (m () -> IO ()) -> Chan a -> SourceT m a -> IO ()
 runChan f c s = f . runT_ $ s ~> toChan c
 
-forkChan :: Foldable t => t (MachineT IO k a) -> IO (Chan a)
-forkChan xs = do
+forkChan
+  :: (MonadIO m, Foldable t)
+  => (forall v . m v -> IO v)
+  -> t (MachineT m k a)
+  -> IO (Chan a)
+forkChan f xs = do
   c <- newChan
-  mapM_ (forkIO . runT_ . (~> toChan c)) xs
+  mapM_ (forkIO . f . runT_ . (~> toChan c)) xs
   return c
 
 mergeIO
   :: (MonadIO m, Foldable t)
-  => t (MachineT IO k a)  -- | A collection of machines
+  => (forall v. m v -> IO v)
+  -> t (MachineT m k a)  -- | A collection of machines
   -> IO (MachineT m k' a) -- | A MonadIO'ic machine
-mergeIO xs = fmap fromChan $ forkChan xs
+mergeIO f xs = fmap fromChan $ forkChan f xs
