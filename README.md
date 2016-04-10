@@ -30,8 +30,8 @@ there are no more processes writing to the `Chan`.
 
     main = do
       c <- newChan
-      t1 <- forkIO (runT_ $ slowSource 500000  [1..4] ~> toChan c)
-      t2 <- forkIO (runT_ $ slowSource 1000000 [1..4] ~> toChan c)
+      t1 <- forkIO id (runT_ $ slowSource 500000  [1..4] ~> toChan c)
+      t2 <- forkIO id (runT_ $ slowSource 1000000 [1..4] ~> toChan c)
       runT_ $ fromChan c ~> autoM print
       print "done"
 
